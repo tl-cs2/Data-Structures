@@ -1,3 +1,6 @@
+from doubly_linked_list import DoublyLinkedList
+
+
 class LRUCache:
     """
     Our LRUCache class keeps track of the max number of nodes it
@@ -6,9 +9,11 @@ class LRUCache:
     order, as well as a storage dict that provides fast access
     to every node stored in the cache.
     """
-    def __init__(self, limit=10):
-        pass
 
+    def __init__(self, limit=10):
+        self.storage = {}
+        self.dll = DoublyLinkedList()
+        self.limit = limit
     """
     Retrieves the value associated with the given key. Also
     needs to move the key-value pair to the end of the order
@@ -16,8 +21,14 @@ class LRUCache:
     Returns the value associated with the key or None if the
     key-value pair doesn't exist in the cache.
     """
+
     def get(self, key):
-        pass
+        if key in self.storage:
+            node_value = self.storage[key].value[1]
+            self.dll.move_to_front(self.storage[key])
+            return node_value
+        else:
+            return None
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -29,5 +40,17 @@ class LRUCache:
     want to overwrite the old value associated with the key with
     the newly-specified value.
     """
+
     def set(self, key, value):
-        pass
+        new_node = (key, value)
+        if key not in self.storage:
+            self.dll.add_to_head(new_node)
+            self.storage[key] = self.dll.head
+        else:
+            self.dll.delete(self.storage[key])
+            self.dll.add_to_head(new_node)
+            self.storage[key] = self.dll.head
+
+        if self.dll.__len__() > self.limit:
+            del self.storage[self.dll.tail.value[0]]
+            self.dll.remove_from_tail()
